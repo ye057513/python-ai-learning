@@ -35,15 +35,22 @@
 # print(f"您好，{name}，您今年{age}岁，月薪为{month_money}元，年薪为：{year_money}元,是否高收入：{high_income}")
 
 # 第一个游戏
-temp=input("输入一个数字：")
-guess=int(temp)
-if guess==8:
-    print("恭喜你，猜对了")
-    print("猜中了也没有奖励")
-else:
-    print("猜错了")
-    if guess>8:
+import random
+count=3
+answer=random.randint(1,100)
+while count>0:
+    temp=input("输入一个数字：")
+    guess=int(temp)
+    if guess==answer:
+        print("恭喜你，猜对了")
+        print("猜中了也没有奖励")
+        break
+    else:
+        print("猜错了")
+    if guess>answer:
         print("大了")
     else:
         print("小了")
+    count-=1
+print(f"正确答案是：{answer}")
 print("游戏结束，不玩了")
