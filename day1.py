@@ -27,9 +27,23 @@
 # print("年龄："+str(age))
 
 
-name=input("请输入您的姓名：")
-age=input("请输入您的年龄：")
-month_money=input("请输入您的月薪：")
-year_money=int(month_money)*12
-high_income=year_money>100000
-print(f"您好，{name}，您今年{age}岁，月薪为{month_money}元，年薪为：{year_money}元,是否高收入：{high_income}")
+# name=input("请输入您的姓名：")
+# age=input("请输入您的年龄：")
+# month_money=input("请输入您的月薪：")
+# year_money=int(month_money)*12
+# high_income=year_money>100000
+# print(f"您好，{name}，您今年{age}岁，月薪为{month_money}元，年薪为：{year_money}元,是否高收入：{high_income}")
+
+# 第一个游戏
+temp=input("输入一个数字：")
+guess=int(temp)
+if guess==8:
+    print("恭喜你，猜对了")
+    print("猜中了也没有奖励")
+else:
+    print("猜错了")
+    if guess>8:
+        print("大了")
+    else:
+        print("小了")
+print("游戏结束，不玩了")
