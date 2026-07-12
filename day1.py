@@ -27,6 +27,7 @@
 # print("年龄："+str(age))
 
 
+<<<<<<< HEAD
 # name=input("请输入您的姓名：")
 # age=input("请输入您的年龄：")
 # month_money=input("请输入您的月薪：")
@@ -54,3 +55,11 @@ while count>0:
     count-=1
 print(f"正确答案是：{answer}")
 print("游戏结束，不玩了")
+=======
+name=input("请输入您的姓名：")
+age=input("请输入您的年龄：")
+month_money=input("请输入您的月薪：")
+year_money=int(month_money)*12
+high_income=year_money>100000
+print(f"您好，{name}，您今年{age}岁，月薪为{month_money}元，年薪为：{year_money}元,是否高收入：{high_income}")
+>>>>>>> parent of 40601d3 (day1 :增加了视频学习代码)
