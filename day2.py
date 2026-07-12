@@ -155,4 +155,8 @@ order_sorted=sorted(orders, key=lambda x: x["price"]*x["quantity"], reverse=True
 # sorted(orders, key=OrderSorter.by_total)
 for order in order_sorted:
     print(f"{order['product']}：{order['price']}X{order['quantity']}={order['price']*order['quantity']}元")
-    
+
+
+matrix=[[1,2,3],[4,5,6],[7,8,9]]
+diag=[matrix[i][-i-1] for i in range(len(matrix))]
+print(diag)
