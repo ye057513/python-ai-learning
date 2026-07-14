@@ -101,3 +101,54 @@ async def main():
 start=time.time()
 asyncio.run(main())
 print(f"异步耗时:{time.time()-start:.1f}秒")
+
+# asyncio语法规则
+import asyncio
+
+# 异步函数
+async def fetch_data(url):
+    print(f"请求{url}...")
+    await asyncio.sleep(1)
+    return f"数据{url}"
+
+# await只能在async内使用
+async def process():
+    result=await fetch_data("https://www.baidu.com")
+    print(result)
+
+# 用asyncio.run()运行异步函数
+asyncio.run(process())
+
+# 可以使用asyncio.gather()并行运行多个异步函数
+async def main():
+    results=await asyncio.gather(
+        fetch_data("https://www.baidu.com"),
+        fetch_data("https://www.taobao.com"),
+        fetch_data("https://www.jd.com")
+        )
+    print(results)
+
+asyncio.run(main())
+
+# 模拟真实场景
+
+import asyncio
+import random
+
+async def call_llm(model,message):
+    delay=random.uniform(0.5,2.0)
+    await asyncio.sleep(delay)
+    return f"[{model}]{message} →回复：耗时{delay:.1f}秒"
+
+async def compare_models(prompt):
+    results=await asyncio.gather(
+        call_llm("gpt-4",prompt),
+        call_llm("Marvis",prompt),
+        call_llm("Deepseek",prompt)
+        )
+    for r in results:
+        print(r)
+
+asyncio.run(compare_models("你好"))
+
+
