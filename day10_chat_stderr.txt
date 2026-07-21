@@ -1,0 +1,7 @@
+Loading weights:   0%|          | 0/71 [00:00<?, ?it/s]Loading weights: 100%|██████████| 71/71 [00:00<00:00, 24465.62it/s]
+<sys>:0: LangChainDeprecationWarning: RunnableWithMessageHistory is deprecated. Use LangGraph's built-in persistence instead.
+Traceback (most recent call last):
+  File "C:\Users\admin\Desktop\python-learning\day10_chat_rag.py", line 61, in <module>
+    question = input("请输入问题: ")
+               ~~~~~^^^^^^^^^^^^^^^^
+EOFError: EOF when reading a line
