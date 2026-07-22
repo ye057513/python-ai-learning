@@ -1,0 +1,6 @@
+Loading weights:   0%|          | 0/71 [00:00<?, ?it/s]Loading weights: 100%|██████████| 71/71 [00:00<00:00, 7251.99it/s]
+Traceback (most recent call last):
+  File "C:\Users\admin\Desktop\python-learning\day12_agent_tools.py", line 29, in <module>
+    tools_by_name = {t.name: t for t in tools}
+                     ^^^^^^
+AttributeError: 'function' object has no attribute 'name'
