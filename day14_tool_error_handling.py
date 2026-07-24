@@ -3,50 +3,75 @@ os.environ["HF_HUB_OFFLINE"] = "1"
 from dotenv import load_dotenv
 load_dotenv()
 
-# TODO 1: 导入必要的模块
-# 提示：与 Day13 完全相同
+from langchain_openai import ChatOpenAI
+from langchain_core.tools import tool
+from langgraph.graph import StateGraph,END
+from langgraph.prebuilt import ToolNode
+from langgraph.graph.message import add_messages
+from typing import Annotated
+from typing_extensions import TypedDict
+from langchain_core.messages import HumanMessage
+import math
+from datetime import datetime
 
-# TODO 2: 配置 ChatOpenAI（model=deepseek-ai/DeepSeek-V3）
-# 提示：base_url=os.getenv("SILICONFLOW_BASE_URL")
+llm = ChatOpenAI(
+    model="deepseek-ai/DeepSeek-V3",
+    base_url=os.getenv("SILICONFLOW_BASE_URL"),
+    api_key=os.getenv("SILICONFLOW_API_KEY"),
+    temperature=0.7,
+)
 
-# TODO 3: 定义 State TypedDict
-# 提示：messages: Annotated[list, add_messages]
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
 
-# ===== 工具定义 =====
-# TODO 4: 定义 search_knowledge 工具（同 Day13）
-# @tool
-# def search_knowledge(keyword: str) -> str:
-#     """当用户询问项目、代码、文件、文档相关内容时，调用此工具检索本地知识库。"""
-#     return ...
+@tool
+def search_knowledge(keyword: str) -> str:
+    """当用户询问项目、代码、文件、文档相关内容时，调用此工具检索本地知识库。"""
+    return f"搜索「{keyword}」：找到 3 条相关结果：(1) ... (2) ... (3) ..."
+    
+@tool
+def calculate(expression: str) -> str:
+    """当用户询问计算相关问题时，调用此工具进行计算。"""
+    result = eval(expression,{"__builtins__":{}},{"math":math})
+    return f"计算结果是：{expression}={result}"
 
-# TODO 5: 定义 calculate 工具（关键变化！）
-# ⚠️ 与 Day13 的区别：不要用 try/except 捕获异常
-# 让 eval 的异常直接向外抛出，LangGraph 会自动生成
-# status="error" 的 ToolMessage 并传给 LLM
-# @tool
-# def calculate(expression: str) -> str:
-#     """当用户询问计算相关问题时，调用此工具进行计算。"""
-#     result = eval(expression, {"__builtins__": {}}, {"math": math})
-#     return f"计算结果：{expression} = {result}"
+@tool
+def get_current_time() -> str:
+    """当用户询问时间相关问题时，调用此工具获取当前时间。"""
+    return datetime.now().strftime("%Y-%m-%d, %H:%M:%S")
 
-# TODO 6: 定义 get_current_time 工具（同 Day13）
+tools = [search_knowledge,calculate, get_current_time]
+llm_with_tools = llm.bind_tools(tools)
+tool_node = ToolNode(tools, handle_tool_errors=True)
 
-# ===== 图构建 =====
-# TODO 7: tools = [...]
-# TODO 8: llm_with_tools = llm.bind_tools(tools)
-# TODO 9: 定义 route 函数（同 Day13）
-# TODO 10: 定义 chatbot(state) 函数（同 Day13，必须包一层）
-# TODO 11: tool_node = ToolNode(tools)
-# TODO 12: 构建 graph（agent → route → tools/END → agent）
+def route(state: State) -> str:
+    """检查最后一条消息是否有 tool_calls。"""
+    last_message = state["messages"][-1]
+    if last_message.tool_calls:
+        return "tools"
+    return "end"
 
-# ===== 测试 =====
-# TODO 13: 正常调用测试
-# messages = [HumanMessage(content="计算 100 + 200")]
-# result = app.invoke({"messages": messages})
-# 打印每条消息的 [type] content
+def chatbot(state: State) -> dict:
+    """调用 LLM，返回新消息。"""
+    response=llm_with_tools.invoke(state["messages"])
+    return {"messages":[response]}
 
-# TODO 14: 错误场景测试
-# messages = [HumanMessage(content="计算 1 / 0 等于多少")]
-# result = app.invoke({"messages": messages})
-# 观察 LLM 收到的 ToolMessage 是否包含 status="error"
-# 观察 LLM 如何向用户解释错误
+graph = StateGraph(State)
+graph.add_node("agent", chatbot)
+graph.add_node("tools", tool_node)
+graph.set_entry_point("agent")
+graph.add_conditional_edges("agent",route,{"tools":"tools","end":END})
+graph.add_edge("tools", "agent")
+app = graph.compile()
+
+messages = [HumanMessage(content="计算100+200")]
+result = app.invoke({"messages":messages})
+print("=== 测试1：正常调用 ===")
+for msg in result["messages"]:
+    print(f"[{msg.type}]{msg.content}")
+
+print("\n=== 测试2：1 / 0 错误场景 ===")
+messages = [HumanMessage(content="计算1 / 0")]
+result = app.invoke({"messages":messages})
+for msg in result["messages"]:
+    print(f"[{msg.type}]{msg.content}")
